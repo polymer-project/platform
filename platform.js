@@ -1,114 +1,35 @@
-/*
+/* 
  * Copyright 2013 The Toolkitchen Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  */
 
-(function(scope) {
-
-// NOTE: uses 'window' and 'document' globals
-
-var thisFile = 'platform.js';
-
-// NOTE: use attributes on the script tag for this file as directives
-
-// exportAs="[name]"            exports polyfill scope into window as 'name'
-// shadow="polyfill|native"     use polyfill version of ShadowDOM (default native)
-// log="data,bind,event,[...]"  enable logging categories
-
-// acquire directives and base path from script element
-
-var source, base = '', attrs = [];
-
 (function() {
-  var s$ = document.querySelectorAll('script[src]');
-  Array.prototype.forEach.call(s$, function(s) {
-    var src = s.getAttribute('src');
-    var re = new RegExp(thisFile + '[^\\\\]*');
-    var match = src.match(re);
-    if (match) {
-      attrs = s.attributes;
-      base = src.slice(0, -match[0].length);
-    }
-  });
-})();
+  
+var thisFile = 'platform.js';
+var scopeName = 'Platform';
 
-// default flags
+function processFlags(flags) {
+  this.modules = [flags.debug ? 'platform.debug.js' : 'platform.min.js'];
+}
 
-var flags = {
-  shadow: HTMLElement.prototype.webkitCreateShadowRoot ? 'native' : 'polyfill'
+// export 
+
+window[scopeName] = {
+  entryPointName: thisFile,
+  processFlags: processFlags
 };
 
-// acquire override flags from script tag attributes
+// bootstrap
 
-for (var i=0, a; (a=attrs[i]); i++) {
-  flags[a.name] = a.value || true;
-}
+var script = document.querySelector('script[src*="' + thisFile + '"]');
+var src = script.attributes.src.value;
+var basePath = src.slice(0, src.indexOf(thisFile));
 
-// acquire override flags from url
-
-if (!flags.noOpts) {
-  location.search.slice(1).split('&').forEach(function(o) {
-    o = o.split('=');
-    flags[o[0]] = o[1] || true;
-  });
-}
-
-// process log flags
-
-var logFlags = {};
-if (flags.log) {
-  flags.log.split(',').forEach(function(f) {
-    logFlags[f] = true;
-  });
-}
-window.logFlags = logFlags;
-
-// support exportas directive
-
-scope = scope || window;
-
-if (flags.exportas) {
-  window[flags.exportas] = scope;
-}
-window.__exported_components_polyfill_scope__ = scope;
-
-// module exports
-
-scope.flags = flags;
-
-if (flags.debug) {
-  // TODO(sjmiles): ham-handed communication with debug loader
-  window.__platform__ = {
-    flags: flags,
-    base: base
-  };
-}
-
-// report effective flags
-
-console.log(flags);
-
-// module dependencies
-
-var modules = flags.debug ? ['platform.debug.js'] :
-    flags.shadow ==='polyfill' ? ['platform.poly.min.js'] :
-      ['platform.min.js'];
-
-// write script tags for dependencies
-
-modules.forEach(function(inSrc) {
-  document.write('<script src="' + base + inSrc + '"></script>');
-});
-
-// css dependencies
-
-// TODO(sjmiles): ad-hoc, no build support for CSS as yet
-var sheets = flags.debug ? [] : ['MDV/src/template_element.css'];
-
-// write link tags for styles
-
-sheets.forEach(function(inSrc) {
-  document.write('<link rel="stylesheet" href="' + base + inSrc + '">');
-});
-})(window.__exported_components_polyfill_scope__);
+if (!window.Loader) {
+  var path = basePath + 'tools/loader/loader.js';
+  document.write('<script src="' + path + '"></script>');
+} 
+document.write('<script>Loader.load("' + scopeName + '")</script>');
+  
+})();
