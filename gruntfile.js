@@ -5,15 +5,17 @@
  */
 module.exports = function(grunt) {
   ShadowDOMNative = [
+    'CustomElements/src/sidetable.js',
     'lib/patches-shadowdom-native.js'
   ];
 
   ShadowDOMPolyfill = [
     'sidetable.js',
     'wrappers.js',
-    'wrappers/EventTarget.js',
+    'wrappers/events.js',
     'wrappers/NodeList.js',
     'wrappers/Node.js',
+    'querySelector.js',
     'wrappers/node-interfaces.js',
     'wrappers/CharacterData.js',
     'wrappers/Element.js',
@@ -34,8 +36,7 @@ module.exports = function(grunt) {
     return 'ShadowDOM/src/' + p;
   });
   ShadowDOMPolyfill.push(
-    'lib/patches-shadowdom-polyfill.js',
-    'lib/querySelector.js'
+    'lib/patches-shadowdom-polyfill.js'
   );
 
   Lib = [
@@ -46,29 +47,21 @@ module.exports = function(grunt) {
   ];
 
   var MDV = [
-    '../third_party/ChangeSummary/planner.js',
-    '../third_party/ChangeSummary/change_summary.js',
-    'compat.js',
-    'side_table.js',
-    'model.js',
-    'node_bindings.js',
-    'template_element.js'
+    'MDV/third_party/ChangeSummary/change_summary.js',
+    'MDV/src/template_element.js'
   ];
-  MDV = MDV.map(function(p) {
-    return 'MDV/src/' + p;
-  });
   MDV.push(
     'lib/patches-mdv.js'
   );
 
   PointerEvents = [
+    'boot.js',
     'touch-action.js',
     'PointerEvent.js',
     'pointermap.js',
     'sidetable.js',
     'dispatcher.js',
     'installer.js',
-    'findTarget.js',
     'platform-events.js',
     'capture.js',
   ];
@@ -97,9 +90,13 @@ module.exports = function(grunt) {
 
   CustomElements = [
     'CustomElements/MutationObservers/MutationObserver.js',
+    'CustomElements/src/MutationObserver.js',
     'CustomElements/src/CustomElements.js',
+    'CustomElements/src/Observer.js',
     'CustomElements/src/HTMLElementElement.js',
-    'CustomElements/src/Parser.js'
+    'CustomElements/src/Parser.js',
+    'CustomElements/src/boot.js',
+    'lib/patches-custom-elements.js'
   ];
 
   Main = [].concat(
@@ -110,15 +107,10 @@ module.exports = function(grunt) {
     PointerEvents,
     PointerGestures
   );
-    
-  PlatformNativeShadow = [].concat(
-    ShadowDOMNative,
-    Main
-  );
 
   ConditionalShadowdom = [].concat(
-    'build/if-poly.js', 
-    ShadowDOMPolyfill, 
+    'build/if-poly.js',
+    ShadowDOMPolyfill,
     'build/else.js',
     ShadowDOMNative,
     'build/end-if.js'
@@ -128,33 +120,52 @@ module.exports = function(grunt) {
     'build/shadowdom.conditional.js',
     Main
   );
-    
+  
+  NativeShadowPlatform = [].concat(
+    ShadowDOMNative,
+    Main
+  );
+  
   // karma setup
   var browsers;
   (function() {
-    var os = require('os');
-    browsers = ['Chrome', 'Firefox'];
-    if (os.type() === 'Darwin') {
-      browsers.push('ChromeCanary');
-    }
-    if (os.type() === 'Windows_NT') {
-      browsers.push('IE');
+    try {
+      var config = grunt.file.readJSON('local.json');
+      if (config.browsers) {
+        browsers = config.browsers;
+      }
+    } catch (e) {
+      var os = require('os');
+      browsers = ['Chrome', 'Firefox'];
+      if (os.type() === 'Darwin') {
+        browsers.push('ChromeCanary');
+      }
+      if (os.type() === 'Windows_NT') {
+        browsers.push('IE');
+      }
     }
   })();
-
   grunt.initConfig({
     karma: {
-      toolkit: {
+      options: {
         configFile: 'conf/karma.conf.js',
+        keepalive: true,
+        browsers: browsers
+      },
+      buildbot: {
         browsers: browsers,
-        keepalive: true
+        reporters: ['crbot'],
+        logLevel: 'OFF'
+      },
+      platform: {
+        browsers: browsers
       }
     },
     concat: {
       ShadowDom: {
-        files: {
-          'build/shadowdom.conditional.js': ConditionalShadowdom
-        }
+        src: ConditionalShadowdom,
+        dest: 'build/shadowdom.conditional.js',
+        nonull: true
       }
     },
     uglify: {
@@ -187,7 +198,7 @@ module.exports = function(grunt) {
           }
         },
         files: {
-          'platform.native.min.js': PlatformNativeShadow
+          'platform.native.min.js': NativeShadowPlatform
         }
       }
     },
@@ -215,12 +226,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-yuidoc');
-  grunt.loadNpmTasks('grunt-karma');
-  
+  grunt.loadNpmTasks('grunt-karma-0.9.1');
+
   // tasks
   grunt.registerTask('default', ['concat', 'uglify']);
   grunt.registerTask('minify', ['concat', 'uglify']);
   grunt.registerTask('docs', ['yuidoc']);
-  grunt.registerTask('test', ['karma']);
+  grunt.registerTask('test', ['karma:platform']);
+  grunt.registerTask('test-buildbot', ['karma:buildbot']);
 };
 

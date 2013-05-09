@@ -11,6 +11,11 @@
 var flags = scope.flags;
 var base = scope.basePath;
 
+// truthy value for any of these flags or failure to detect native
+// shadowDOM results in polyfill
+flags.shadow = (flags.shadowdom || flags.shadow || flags.polyfill ||
+    !HTMLElement.prototype.webkitCreateShadowRoot) && 'polyfill';
+
 // module dependencies
 
 var ShadowDOMNative = [
@@ -19,8 +24,7 @@ var ShadowDOMNative = [
 
 var ShadowDOMPolyfill = [
   'ShadowDOM/shadowdom.js',
-  'lib/patches-shadowdom-polyfill.js',
-  'lib/querySelector.js'
+  'lib/patches-shadowdom-polyfill.js'
 ];
 
 var Lib = [
@@ -41,13 +45,9 @@ var Pointer = [
 
 var WebElements = [
   'HTMLImports/html-imports.js',
-  'CustomElements/custom-elements.js'
+  'CustomElements/custom-elements.js',
+  'lib/patches-custom-elements.js'
 ];
-
-// failure to detect native shadowDOM, or a 'truthy' value for any of these 
-// flags results in polyfill
-flags.shadow = (flags.shadowdom || flags.shadow || flags.polyfill || 
-    !HTMLElement.prototype.webkitCreateShadowRoot) && 'polyfill';
 
 // select ShadowDOM impl
 
