@@ -125,6 +125,18 @@ module.exports = function(grunt) {
     ShadowDOMNative,
     Main
   );
+
+  SandboxedChromeAppsPlatform = [].concat(
+    'build/shadowdom.conditional.js',
+    Lib,
+    MDV,
+    'lib/patches-html-imports-csp.js',
+    HTMLImports,
+    CustomElements,
+    PointerEvents,
+    PointerGestures
+  );
+
   
   // karma setup
   var browsers;
@@ -169,6 +181,9 @@ module.exports = function(grunt) {
       }
     },
     uglify: {
+      options: {
+        banner: '/* Copyright 2013 The Polymer Authors. All rights reserved. Use of this source code is governed by a BSD-style license that can be found in the LICENSE file. */\n'
+      },
       Platform: {
         options: {
           sourceMap: 'platform.min.js.map',
@@ -199,6 +214,19 @@ module.exports = function(grunt) {
         },
         files: {
           'platform.native.min.js': NativeShadowPlatform
+        }
+      },
+      PlatformSandboxedChromeApps: {
+        options: {
+          sourceMap: 'platform.sandbox.min.js.map',
+          compress: {
+            // TODO(sjmiles): should be false by default (?)
+            // https://github.com/mishoo/UglifyJS2/issues/165
+            unsafe: false
+          }
+        },
+        files: {
+          'platform.sandbox.min.js': SandboxedChromeAppsPlatform
         }
       }
     },
