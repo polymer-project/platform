@@ -5,7 +5,7 @@
  */
 module.exports = function(grunt) {
   ShadowDOMNative = [
-    'CustomElements/src/sidetable.js',
+    '../CustomElements/src/sidetable.js',
     'lib/patches-shadowdom-native.js'
   ];
 
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
     'wrappers/override-constructors.js'
   ];
   ShadowDOMPolyfill = ShadowDOMPolyfill.map(function(p) {
-    return 'ShadowDOM/src/' + p;
+    return '../ShadowDOM/src/' + p;
   });
   ShadowDOMPolyfill.push(
     'lib/patches-shadowdom-polyfill.js'
@@ -47,9 +47,15 @@ module.exports = function(grunt) {
   ];
 
   MDV = [
-    'MDV/third_party/ChangeSummary/change_summary.js',
-    'MDV/src/template_element.js'
+    'third_party/ChangeSummary/change_summary.js',
+    'src/template_element.js',
+    'third_party/esprima/esprima.js',
+    'util/expression_syntax.js'
   ];
+  MDV = MDV.map(function(p) {
+    return '../mdv/' + p;
+  });
+
   MDV.push(
     'lib/patches-mdv.js'
   );
@@ -62,11 +68,14 @@ module.exports = function(grunt) {
     'sidetable.js',
     'dispatcher.js',
     'installer.js',
+    'mouse.js',
+    'touch.js',
+    'ms.js',
     'platform-events.js',
     'capture.js',
   ];
   PointerEvents = PointerEvents.map(function(p) {
-    return 'PointerGestures/src/PointerEvents/src/' + p;
+    return '../PointerEvents/src/' + p;
   });
 
   PointerGestures = [
@@ -81,21 +90,23 @@ module.exports = function(grunt) {
     'tap.js'
   ];
   PointerGestures = PointerGestures.map(function(p) {
-    return 'PointerGestures/src/' + p;
+    return '../PointerGestures/src/' + p;
   });
 
   HTMLImports = [
-    'HTMLImports/src/HTMLImports.js'
+    '../HTMLImports/src/HTMLImports.js',
+    '../HTMLImports/src/Parser.js',
+    '../HTMLImports/src/boot.js'
   ];
 
   CustomElements = [
-    'CustomElements/MutationObservers/MutationObserver.js',
-    'CustomElements/src/MutationObserver.js',
-    'CustomElements/src/CustomElements.js',
-    'CustomElements/src/Observer.js',
-    'CustomElements/src/HTMLElementElement.js',
-    'CustomElements/src/Parser.js',
-    'CustomElements/src/boot.js',
+    '../CustomElements/MutationObservers/MutationObserver.js',
+    '../CustomElements/src/MutationObserver.js',
+    '../CustomElements/src/CustomElements.js',
+    '../CustomElements/src/Observer.js',
+    '../CustomElements/src/HTMLElementElement.js',
+    '../CustomElements/src/Parser.js',
+    '../CustomElements/src/boot.js',
     'lib/patches-custom-elements.js'
   ];
 
@@ -136,7 +147,6 @@ module.exports = function(grunt) {
     PointerEvents,
     PointerGestures
   );
-
   
   // karma setup
   var browsers;
@@ -182,7 +192,8 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        banner: '/* Copyright 2013 The Polymer Authors. All rights reserved. Use of this source code is governed by a BSD-style license that can be found in the LICENSE file. */\n'
+        banner: grunt.file.read('LICENSE'),
+        nonull: true
       },
       Platform: {
         options: {
