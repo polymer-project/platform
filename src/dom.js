@@ -44,15 +44,25 @@
     newName && this.add(newName);
   };
   
-  // make forEach work on NodeList
+  // add array() and forEach() to NodeList, NamedNodeMap, HTMLCollection
 
-  NodeList.prototype.forEach = function(cb, context) {
-    Array.prototype.slice.call(this).forEach(cb, context);
+  var ArraySlice = function() {
+    return Array.prototype.slice.call(this);
   };
 
-  HTMLCollection.prototype.forEach = function(cb, context) {
-    Array.prototype.slice.call(this).forEach(cb, context);
+  var namedNodeMap = (window.NamedNodeMap || window.MozNamedAttrMap || {});
+  
+  NodeList.prototype.array = ArraySlice;
+  namedNodeMap.prototype.array = ArraySlice;
+  HTMLCollection.prototype.array = ArraySlice;
+
+  var ArrayForEach = function(cb, context) {
+    ArraySlice.call(this).forEach(cb, context);
   };
+
+  NodeList.prototype.forEach = ArrayForEach;
+  namedNodeMap.prototype.forEach = ArrayForEach;
+  HTMLCollection.prototype.forEach = ArrayForEach;
 
   // polyfill performance.now
 
