@@ -30,3 +30,8 @@ htmlSuite('styling', function() {
   htmlTest('html/styling/pseudos.html?shadow');
   htmlTest('html/styling/polyfill-directive.html');
 });
+
+
+htmlSuite('my-element', function() {
+  htmlTest('html/my-element.html');
+});
