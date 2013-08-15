@@ -27,9 +27,11 @@ module.exports = function(grunt) {
     'wrappers/generic.js',
     'wrappers/ShadowRoot.js',
     'ShadowRenderer.js',
+    'wrappers/elements-with-form-property.js',
     'wrappers/Document.js',
     'wrappers/Window.js',
     'wrappers/MutationObserver.js',
+    'wrappers/Range.js',
     'wrappers/override-constructors.js'
   ];
   ShadowDOMPolyfill = ShadowDOMPolyfill.map(function(p) {
@@ -48,18 +50,13 @@ module.exports = function(grunt) {
   ];
 
   MDV = [
-    'third_party/ChangeSummary/change_summary.js',
-    'src/template_element.js',
-    'third_party/esprima/esprima.js',
-    'util/expression_syntax.js'
-  ];
-  MDV = MDV.map(function(p) {
-    return '../mdv/' + p;
-  });
-
-  MDV.push(
+    '../observe-js/src/observe.js',
+    '../NodeBind/src/NodeBind.js',
+    '../TemplateBinding/src/TemplateBinding.js',
+    '../polymer-expressions/third_party/esprima/esprima.js',
+    '../polymer-expressions/src/polymer-expressions.js',
     'src/patches-mdv.js'
-  );
+  ];
 
   PointerEvents = [
     'boot.js',
@@ -108,7 +105,8 @@ module.exports = function(grunt) {
     '../CustomElements/src/HTMLElementElement.js',
     '../CustomElements/src/Parser.js',
     '../CustomElements/src/boot.js',
-    'src/patches-custom-elements.js'
+    'src/patches-custom-elements.js',
+    'src/microtask.js'
   ];
 
   Main = [].concat(

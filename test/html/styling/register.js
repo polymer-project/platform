@@ -6,7 +6,7 @@
     }
     var ctor = document.register(name, {
       prototype: Object.create(proto, {
-        readyCallback: {
+        createdCallback: {
           value: function() {
             if (templates) {
               templates.forEach(function(t) {
@@ -24,12 +24,13 @@
   }
   
   function shim(templates, name, extnds) {
-    templates.forEach(function(templateName) {
-      var template = document.querySelector('#' + templateName);
+    if (templates) {
+      var id = templates[templates.length - 1];
+      var template = document.querySelector('#' + id);
       if (template) {
-        Platform.ShadowCSS.shimStyling(template.content, name, extnds);
-      }
-    });
+          Platform.ShadowCSS.shimStyling(template.content, name, extnds);
+        }
+    }
   }
   
   scope.register = register;

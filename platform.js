@@ -14,10 +14,10 @@ function processFlags(flags) {
     // use the minified build
     this.modules = ['platform.min.js'];
   } else {
-    // truthy value for any of these flags or failure to detect native
-    // shadowDOM results in polyfill
+    // truthy value for any of these flags, or failure to detect native
+    // ShadowDOM, results in polyfill
     flags.shadow = (flags.shadowdom || flags.shadow || flags.polyfill ||
-                    !HTMLElement.prototype.webkitCreateShadowRoot) && 'polyfill';
+      !HTMLElement.prototype.webkitCreateShadowRoot) && 'polyfill';
 
     var ShadowDOMNative = [
       'src/patches-shadowdom-native.js'
@@ -33,11 +33,15 @@ function processFlags(flags) {
       'src/lang.js',
       'src/dom.js',
       'src/template.js',
-      'src/inspector.js',
+      'src/inspector.js'
     ];
 
     var MDV = [
-      '../mdv/mdv.js',
+      '../observe-js/src/observe.js',
+      '../NodeBind/src/NodeBind.js',
+      '../TemplateBinding/src/TemplateBinding.js',
+      '../polymer-expressions/third_party/esprima/esprima.js',
+      '../polymer-expressions/src/polymer-expressions.js',
       'src/patches-mdv.js'
     ];
 
@@ -48,7 +52,8 @@ function processFlags(flags) {
     var WebElements = [
       '../HTMLImports/html-imports.js',
       '../CustomElements/custom-elements.js',
-      'src/patches-custom-elements.js'
+      'src/patches-custom-elements.js',
+      'src/microtask.js'
     ];
 
     // select ShadowDOM impl
@@ -78,10 +83,10 @@ var script = document.querySelector('script[src*="' + thisFile + '"]');
 var src = script.attributes.src.value;
 var basePath = src.slice(0, src.indexOf(thisFile));
 
-if (!window.Loader) {
+if (!window.PolymerLoader) {
   var path = basePath + 'tools/loader/loader.js';
   document.write('<script src="' + path + '"></script>');
 }
-document.write('<script>Loader.load("' + scopeName + '")</script>');
+document.write('<script>PolymerLoader.load("' + scopeName + '")</script>');
 
 })();
