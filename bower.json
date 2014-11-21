@@ -5,12 +5,15 @@
   "authors": [
     "The Polymer Authors"
   ],
-  "description": "Integrate platform polyfills: load, build, test",
+  "description": "The Web Component polyfills",
   "keywords": [
     "polymer",
     "web",
     "components"
   ],
   "license": "BSD",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "webcomponentsjs": "latest"
+  }
 }
